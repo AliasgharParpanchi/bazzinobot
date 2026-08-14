@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>بازینو</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+</head>
+<body>
+  <main class="app">
+    <header class="topbar">
+      <div>
+        <div class="brand">🎮 بازینو</div>
+        <div class="subtitle">هر روز یک چالش جدید</div>
+      </div>
+      <div class="coin">🪙 <span id="coins">0</span></div>
+    </header>
+
+    <section id="home" class="screen active">
+      <div class="hero">
+        <div class="hero-icon">🧠</div>
+        <h1>حدس کلمه</h1>
+        <p>به سؤال‌ها جواب بده، امتیاز بگیر و رکوردت را بالا ببر.</p>
+        <button id="startBtn" class="primary">شروع بازی</button>
+      </div>
+
+      <div class="stats">
+        <div><span>❤️</span><b id="lives">3</b><small>جان</small></div>
+        <div><span>🏆</span><b id="best">0</b><small>بهترین امتیاز</small></div>
+        <div><span>🔥</span><b id="streak">0</b><small>روز متوالی</small></div>
+      </div>
+    </section>
+
+    <section id="game" class="screen">
+      <div class="game-head">
+        <span>امتیاز: <b id="score">0</b></span>
+        <span>❤️ <b id="gameLives">3</b></span>
+      </div>
+
+      <div class="question-card">
+        <div class="progress"><div id="progressBar"></div></div>
+        <div class="question-number" id="questionNumber">سؤال ۱</div>
+        <h2 id="question">...</h2>
+        <div id="answers" class="answers"></div>
+      </div>
+
+      <button id="backBtn" class="secondary">خروج از بازی</button>
+    </section>
+
+    <section id="result" class="screen">
+      <div class="result-card">
+        <div class="result-icon">🏆</div>
+        <h2>بازی تمام شد!</h2>
+        <p>امتیاز شما</p>
+        <strong id="finalScore">0</strong>
+        <button id="againBtn" class="primary">دوباره بازی کن</button>
+        <button id="homeBtn" class="secondary">صفحه اصلی</button>
+      </div>
+    </section>
+
+    <nav class="nav">
+      <button class="nav-item active" data-screen="home">🏠<span>خانه</span></button>
+      <button class="nav-item" data-screen="game">🎮<span>بازی</span></button>
+      <button class="nav-item" id="rewardBtn">🎬<span>جایزه</span></button>
+    </nav>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
