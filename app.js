@@ -1,3 +1,11 @@
+// =====================================================
+// BAZZINO - Telegram Mini App
+// =====================================================
+
+// -----------------------------------------------------
+// TELEGRAM
+// -----------------------------------------------------
+
 const tg = window.Telegram?.WebApp;
 
 if (tg) {
@@ -5,186 +13,366 @@ if (tg) {
   tg.expand();
 }
 
-// ===============================
-// ADSGRAM
-// ===============================
 
-// اینجا Block ID خودت را قرار بده
-const ADSGRAM_BLOCK_ID = "YOUR_BLOCK_ID";
+// -----------------------------------------------------
+// CONFIG
+// -----------------------------------------------------
+
+const config = window.BAZINO_CONFIG;
+
+if (!config) {
+  console.error("BAZINO_CONFIG پیدا نشد.");
+}
+
+
+// -----------------------------------------------------
+// ADSGRAM CONFIG
+// -----------------------------------------------------
+
+const ADSGRAM_BLOCK_ID =
+  config?.ads?.adsgram?.blockId || null;
 
 let AdController = null;
 
+
+// -----------------------------------------------------
+// ADSGRAM INITIALIZATION
+// -----------------------------------------------------
+
 function initAdsgram() {
+
+  // بررسی SDK
   if (!window.Adsgram) {
-    console.error("AdsGram SDK loaded نیست.");
+
+    console.error(
+      "AdsGram SDK loaded نشده است."
+    );
+
     return false;
   }
 
-  if (ADSGRAM_BLOCK_ID === "YOUR_BLOCK_ID") {
-    console.warn("Block ID هنوز وارد نشده است.");
+
+  // بررسی Config
+  if (!ADSGRAM_BLOCK_ID) {
+
+    console.error(
+      "AdsGram Block ID در config وجود ندارد."
+    );
+
     return false;
   }
+
 
   try {
+
     AdController = window.Adsgram.init({
       blockId: ADSGRAM_BLOCK_ID
     });
 
+    console.log(
+      "AdsGram initialized:",
+      ADSGRAM_BLOCK_ID
+    );
+
     return true;
+
   } catch (error) {
-    console.error("خطا در راه‌اندازی AdsGram:", error);
+
+    console.error(
+      "خطا در راه‌اندازی AdsGram:",
+      error
+    );
+
     return false;
   }
 }
 
-// ===============================
+
+// =====================================================
 // GAME DATA
-// ===============================
+// =====================================================
 
 const questions = [
+
   {
     q: "کدام مورد یک حیوان است؟",
-    a: ["ماشین", "گربه", "مداد", "خانه"],
+    a: [
+      "ماشین",
+      "گربه",
+      "مداد",
+      "خانه"
+    ],
     c: 1
   },
+
   {
     q: "کدام مورد برای نوشتن استفاده می‌شود؟",
-    a: ["مداد", "کفش", "لیوان", "توپ"],
+    a: [
+      "مداد",
+      "کفش",
+      "لیوان",
+      "توپ"
+    ],
     c: 0
   },
+
   {
     q: "پایتخت ایران کدام است؟",
-    a: ["تبریز", "شیراز", "تهران", "رشت"],
+    a: [
+      "تبریز",
+      "شیراز",
+      "تهران",
+      "رشت"
+    ],
     c: 2
   },
+
   {
     q: "کدام مورد میوه است؟",
-    a: ["هویج", "سیب", "نان", "پنیر"],
+    a: [
+      "هویج",
+      "سیب",
+      "نان",
+      "پنیر"
+    ],
     c: 1
   },
+
   {
     q: "کدام عدد بزرگ‌تر است؟",
-    a: ["7", "3", "5", "2"],
+    a: [
+      "7",
+      "3",
+      "5",
+      "2"
+    ],
     c: 0
   }
+
 ];
 
-// ===============================
+
+// =====================================================
 // GAME STATE
-// ===============================
+// =====================================================
 
 let state = {
+
   score: 0,
-  coins: Number(localStorage.getItem("bazino_coins") || 0),
-  best: Number(localStorage.getItem("bazino_best") || 0),
+
+  coins: Number(
+    localStorage.getItem("bazino_coins") || 0
+  ),
+
+  best: Number(
+    localStorage.getItem("bazino_best") || 0
+  ),
+
   lives: 3,
+
   qIndex: 0,
-  streak: Number(localStorage.getItem("bazino_streak") || 0)
+
+  streak: Number(
+    localStorage.getItem("bazino_streak") || 0
+  )
+
 };
 
-const $ = (id) => document.getElementById(id);
 
-// ===============================
-// UI
-// ===============================
+// =====================================================
+// DOM HELPER
+// =====================================================
+
+const $ = (id) =>
+  document.getElementById(id);
+
+
+// =====================================================
+// UPDATE HOME
+// =====================================================
 
 function updateHome() {
-  $("coins").textContent = state.coins;
-  $("lives").textContent = state.lives;
-  $("best").textContent = state.best;
-  $("streak").textContent = state.streak;
-  $("gameLives").textContent = state.lives;
+
+  $("coins").textContent =
+    state.coins;
+
+  $("lives").textContent =
+    state.lives;
+
+  $("best").textContent =
+    state.best;
+
+  $("streak").textContent =
+    state.streak;
+
+  $("gameLives").textContent =
+    state.lives;
 }
 
+
+// =====================================================
+// SCREEN MANAGEMENT
+// =====================================================
+
 function showScreen(name) {
+
   document
     .querySelectorAll(".screen")
-    .forEach((s) => s.classList.remove("active"));
+    .forEach((screen) => {
 
-  $(name).classList.add("active");
+      screen.classList.remove("active");
+
+    });
+
+
+  const target =
+    $(name);
+
+  if (target) {
+
+    target.classList.add("active");
+
+  }
+
 
   document
     .querySelectorAll(".nav-item")
-    .forEach((n) => n.classList.remove("active"));
+    .forEach((item) => {
 
-  const nav = document.querySelector(`[data-screen="${name}"]`);
+      item.classList.remove("active");
+
+    });
+
+
+  const nav =
+    document.querySelector(
+      `[data-screen="${name}"]`
+    );
+
 
   if (nav) {
+
     nav.classList.add("active");
+
   }
 }
 
-// ===============================
+
+// =====================================================
 // START GAME
-// ===============================
+// =====================================================
 
 function startGame() {
+
   state.score = 0;
+
   state.qIndex = 0;
+
   state.lives = 3;
 
   showScreen("game");
+
   renderQuestion();
 }
 
-// ===============================
+
+// =====================================================
 // RENDER QUESTION
-// ===============================
+// =====================================================
 
 function renderQuestion() {
-  const item = questions[state.qIndex];
+
+  const item =
+    questions[state.qIndex];
+
 
   if (!item) {
+
     finishGame();
+
     return;
   }
 
-  $("score").textContent = state.score;
-  $("gameLives").textContent = state.lives;
+
+  $("score").textContent =
+    state.score;
+
+
+  $("gameLives").textContent =
+    state.lives;
+
 
   $("questionNumber").textContent =
     `سؤال ${state.qIndex + 1}`;
 
-  $("question").textContent = item.q;
+
+  $("question").textContent =
+    item.q;
+
 
   $("progressBar").style.width =
-    `${((state.qIndex) / questions.length) * 100}%`;
+    `${(state.qIndex / questions.length) * 100}%`;
 
-  const box = $("answers");
+
+  const box =
+    $("answers");
+
 
   box.innerHTML = "";
 
-  item.a.forEach((text, i) => {
 
-    const btn = document.createElement("button");
+  item.a.forEach((text, index) => {
 
-    btn.className = "answer";
+    const button =
+      document.createElement("button");
 
-    btn.textContent = text;
 
-    btn.onclick = () => {
-      answer(btn, i === item.c);
+    button.className =
+      "answer";
+
+
+    button.textContent =
+      text;
+
+
+    button.onclick = () => {
+
+      answer(
+        button,
+        index === item.c
+      );
+
     };
 
-    box.appendChild(btn);
+
+    box.appendChild(button);
+
   });
+
 }
 
-// ===============================
+
+// =====================================================
 // ANSWER
-// ===============================
+// =====================================================
 
 function answer(button, correct) {
 
   document
     .querySelectorAll(".answer")
-    .forEach((b) => b.disabled = true);
+    .forEach((item) => {
+
+      item.disabled = true;
+
+    });
+
 
   if (correct) {
 
     button.classList.add("correct");
 
     state.score += 10;
+
     state.coins += 5;
 
   } else {
@@ -192,9 +380,12 @@ function answer(button, correct) {
     button.classList.add("wrong");
 
     state.lives--;
+
   }
 
+
   updateHome();
+
 
   setTimeout(() => {
 
@@ -210,49 +401,62 @@ function answer(button, correct) {
       state.qIndex++;
 
       renderQuestion();
+
     }
 
   }, 650);
+
 }
 
-// ===============================
+
+// =====================================================
 // FINISH GAME
-// ===============================
+// =====================================================
 
 function finishGame() {
 
-  state.best = Math.max(
-    state.best,
-    state.score
-  );
+  state.best =
+    Math.max(
+      state.best,
+      state.score
+    );
+
 
   localStorage.setItem(
     "bazino_best",
     state.best
   );
 
+
   localStorage.setItem(
     "bazino_coins",
     state.coins
   );
 
+
   $("finalScore").textContent =
     state.score;
 
+
   updateHome();
+
 
   showScreen("result");
 }
 
-// ===============================
-// REWARDED AD
-// ===============================
+
+// =====================================================
+// REWARDED ADSGRAM AD
+// =====================================================
 
 async function showRewardedAd() {
 
+  // اگر Controller ساخته نشده
   if (!AdController) {
 
-    const initialized = initAdsgram();
+    const initialized =
+      initAdsgram();
+
 
     if (!initialized) {
 
@@ -264,43 +468,61 @@ async function showRewardedAd() {
     }
   }
 
+
   try {
 
-    // نمایش تبلیغ
-    const result = await AdController.show();
+    console.log(
+      "درخواست نمایش تبلیغ..."
+    );
+
 
     /*
-      در Rewarded Ad فقط زمانی جایزه می‌دهیم
-      که تبلیغ با موفقیت نمایش داده شده باشد.
-    */
+     * در Rewarded Ad:
+     *
+     * اگر کاربر تبلیغ را کامل ببیند
+     * Promise موفق می‌شود.
+     *
+     * اگر تبلیغ skip شود یا خطایی رخ دهد
+     * Promise شکست می‌خورد.
+     */
 
-    if (result && result.done === false) {
+    const result =
+      await AdController.show();
 
-      showMessage(
-        "تبلیغ کامل مشاهده نشد."
-      );
 
-      return;
-    }
+    console.log(
+      "AdsGram Reward:",
+      result
+    );
 
-    // ==========================
+
+    // =================================================
     // REWARD
-    // ==========================
+    // =================================================
 
-    state.lives += 1;
+    state.lives +=
+      config.rewards.rewardedAd.lives;
 
-    state.coins += 20;
+
+    state.coins +=
+      config.rewards.rewardedAd.coins;
+
 
     localStorage.setItem(
       "bazino_coins",
       state.coins
     );
 
+
     updateHome();
 
+
     showMessage(
-      "🎉 تبریک!\nیک ❤️ جان و ۲۰ 🪙 سکه دریافت کردی."
+      `🎉 تبریک!\n` +
+      `❤️ +${config.rewards.rewardedAd.lives} جان\n` +
+      `🪙 +${config.rewards.rewardedAd.coins} سکه`
     );
+
 
   } catch (error) {
 
@@ -309,15 +531,19 @@ async function showRewardedAd() {
       error
     );
 
+
     showMessage(
-      "فعلاً تبلیغی برای نمایش وجود ندارد."
+      "تبلیغ کامل مشاهده نشد یا فعلاً تبلیغی موجود نیست."
     );
+
   }
+
 }
 
-// ===============================
+
+// =====================================================
 // MESSAGE
-// ===============================
+// =====================================================
 
 function showMessage(message) {
 
@@ -328,37 +554,53 @@ function showMessage(message) {
   } else {
 
     alert(message);
+
   }
+
 }
 
-// ===============================
+
+// =====================================================
 // BUTTONS
-// ===============================
+// =====================================================
 
 $("startBtn").onclick =
   startGame;
 
+
 $("againBtn").onclick =
   startGame;
 
+
 $("homeBtn").onclick =
-  () => showScreen("home");
+  () => {
+
+    showScreen("home");
+
+  };
+
 
 $("backBtn").onclick =
-  () => showScreen("home");
+  () => {
 
-// ===============================
+    showScreen("home");
+
+  };
+
+
+// =====================================================
 // NAVIGATION
-// ===============================
+// =====================================================
 
 document
   .querySelectorAll(".nav-item[data-screen]")
-  .forEach((btn) => {
+  .forEach((button) => {
 
-    btn.onclick = () => {
+    button.onclick = () => {
 
       const target =
-        btn.dataset.screen;
+        button.dataset.screen;
+
 
       if (target === "game") {
 
@@ -367,22 +609,26 @@ document
       } else {
 
         showScreen(target);
+
       }
+
     };
+
   });
 
-// ===============================
+
+// =====================================================
 // REWARDED AD BUTTON
-// ===============================
+// =====================================================
 
 $("rewardBtn").onclick =
   showRewardedAd;
 
-// ===============================
-// INITIALIZE
-// ===============================
+
+// =====================================================
+// INITIALIZATION
+// =====================================================
 
 updateHome();
 
-// راه‌اندازی AdsGram
 initAdsgram();
